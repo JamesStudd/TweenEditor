@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using DG.DOTweenEditor;
 using DG.Tweening;
 using Unity.VisualScripting;
 using UnityEditor;
@@ -14,6 +15,7 @@ namespace Tweens
     public class TweenCreatorEditor : Editor
     {
         private List<Object> _currentParameterValues;
+
         private string[] _methodNames;
         private List<MethodInfo> _methods;
 
@@ -68,6 +70,105 @@ namespace Tweens
             }
 
             DrawCurrentMethodInfo();
+
+            if (GUILayout.Button("Add"))
+            {
+                AddCurrentTween();
+            }
+
+            if (GUILayout.Button("Preview"))
+            {
+                PreviewTweens();
+            }
+
+            if (GUILayout.Button("Stop"))
+            {
+                DOTweenEditorPreview.Stop(true);
+            }
+        }
+
+        private void AddCurrentTween()
+        {
+            var tweenCreator = (TweenCreator)target;
+            var method = Methods[_selectedMethodIndex];
+
+            var entry = new TweenEntry
+            {
+                MethodName = method.Name,
+                Parameters = _currentParameterValues
+                    .Select(o =>
+                    {
+                        var p = new TweenParameter();
+                        p.SetValue(o);
+                        return p;
+                    })
+                    .ToList()
+            };
+
+            Undo.RecordObject(tweenCreator, "Add Tween Entry");
+            tweenCreator.Tweens.Add(entry);
+            EditorUtility.SetDirty(tweenCreator);
+        }
+
+        private void PreviewTweens()
+        {
+            var tweenCreator = (TweenCreator)target;
+
+            var seq = DOTween.Sequence();
+
+            foreach (var entry in tweenCreator.Tweens)
+            {
+                var method = FindShortcutMethod(entry.MethodName, entry.Parameters.Count);
+                if (method == null)
+                {
+                    continue;
+                }
+
+                var args = entry.Parameters.Select(p => p.GetValue()).ToArray();
+
+                if (method.Invoke(null, args) is Tween tween)
+                {
+                    seq.Append(tween);
+                }
+            }
+
+            seq.AppendCallback(() =>
+            {
+                DOTweenEditorPreview.Stop(true);
+            });
+
+            DOTweenEditorPreview.PrepareTweenForPreview(seq);
+            DOTweenEditorPreview.Start();
+        }
+
+        private MethodInfo FindShortcutMethod(string name, int paramCount)
+        {
+            return Methods.FirstOrDefault(m =>
+                m.Name == name &&
+                m.GetParameters().Length == paramCount);
+        }
+
+        private object[] ConvertParameters(MethodInfo method, List<object> storedParams)
+        {
+            var infos = method.GetParameters();
+            var result = new object[storedParams.Count];
+
+            for (var i = 0; i < storedParams.Count; i++)
+            {
+                var expectedType = infos[i].ParameterType;
+                var val = storedParams[i];
+
+                if (expectedType.IsInstanceOfType(val))
+                {
+                    result[i] = val;
+                }
+                else
+                {
+                    result[i] = Convert.ChangeType(val, expectedType);
+                }
+            }
+
+            return result;
         }
 
         private void InitializeNewParameterValues()
