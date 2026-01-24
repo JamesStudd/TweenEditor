@@ -20,6 +20,7 @@ namespace Tweens
         }
 
         public ParamType Type;
+        public string ParameterName;
 
         public int IntValue;
         public float FloatValue;
@@ -46,6 +47,11 @@ namespace Tweens
             };
         }
 
+        public void SetName(string newName)
+        {
+            ParameterName = newName;
+        }
+        
         public void SetValue(object value)
         {
             switch (value)

@@ -14,7 +14,7 @@ namespace Tweens
     [CustomEditor(typeof(TweenCreator))]
     public class TweenCreatorEditor : Editor
     {
-        private List<Object> _currentParameterValues;
+        private List<(string Name, Object Value)> _currentParameterValues;
 
         private string[] _methodNames;
         private List<MethodInfo> _methods;
@@ -99,7 +99,8 @@ namespace Tweens
                     .Select(o =>
                     {
                         var p = new TweenParameter();
-                        p.SetValue(o);
+                        p.SetValue(o.Value);
+                        p.SetName(o.Name);
                         return p;
                     })
                     .ToList()
@@ -141,10 +142,10 @@ namespace Tweens
             DOTweenEditorPreview.Start();
         }
 
-        private MethodInfo FindShortcutMethod(string name, int paramCount)
+        private MethodInfo FindShortcutMethod(string methodName, int paramCount)
         {
             return Methods.FirstOrDefault(m =>
-                m.Name == name &&
+                m.Name == methodName &&
                 m.GetParameters().Length == paramCount);
         }
 
@@ -175,7 +176,7 @@ namespace Tweens
         {
             var method = Methods[_selectedMethodIndex];
             var parameters = method.GetParameters();
-            _currentParameterValues = parameters.Select(e => e.ParameterType.Default()).ToList();
+            _currentParameterValues = parameters.Select(e => (Name: e.Name, Value: e.ParameterType.Default())).ToList();
         }
 
         private void DrawCurrentMethodInfo()
@@ -193,9 +194,9 @@ namespace Tweens
             }
         }
 
-        private Object DrawParameterField(ParameterInfo parameter, Object parameterValue)
+        private (string Name, Object Value) DrawParameterField(ParameterInfo parameter, (string Name, Object parameterValue) parameterValue)
         {
-            return TryDrawInbuiltType(parameter.ParameterType, parameterValue, parameter.Name);
+            return (parameterValue.Name, TryDrawInbuiltType(parameter.ParameterType, parameterValue.parameterValue, parameter.Name));
         }
 
         private static Object TryDrawInbuiltType(Type t, object value, string label)

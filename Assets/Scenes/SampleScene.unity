@@ -468,6 +468,7 @@ MonoBehaviour:
   - MethodName: DOMove
     Parameters:
     - Type: 7
+      ParameterName: target
       IntValue: 0
       FloatValue: 0
       BoolValue: 0
@@ -477,17 +478,19 @@ MonoBehaviour:
       ColorValue: {r: 0, g: 0, b: 0, a: 0}
       ObjectValue: {fileID: 898733637}
     - Type: 5
+      ParameterName: endValue
       IntValue: 0
       FloatValue: 0
       BoolValue: 0
       StringValue: 
       Vector2Value: {x: 0, y: 0}
-      Vector3Value: {x: 3, y: 6, z: 0}
+      Vector3Value: {x: 3, y: 3, z: 0}
       ColorValue: {r: 0, g: 0, b: 0, a: 0}
       ObjectValue: {fileID: 0}
     - Type: 1
+      ParameterName: duration
       IntValue: 0
-      FloatValue: 2
+      FloatValue: 3
       BoolValue: 0
       StringValue: 
       Vector2Value: {x: 0, y: 0}
@@ -495,44 +498,7 @@ MonoBehaviour:
       ColorValue: {r: 0, g: 0, b: 0, a: 0}
       ObjectValue: {fileID: 0}
     - Type: 2
-      IntValue: 0
-      FloatValue: 0
-      BoolValue: 0
-      StringValue: 
-      Vector2Value: {x: 0, y: 0}
-      Vector3Value: {x: 0, y: 0, z: 0}
-      ColorValue: {r: 0, g: 0, b: 0, a: 0}
-      ObjectValue: {fileID: 0}
-  - MethodName: DOMove
-    Parameters:
-    - Type: 7
-      IntValue: 0
-      FloatValue: 0
-      BoolValue: 0
-      StringValue: 
-      Vector2Value: {x: 0, y: 0}
-      Vector3Value: {x: 0, y: 0, z: 0}
-      ColorValue: {r: 0, g: 0, b: 0, a: 0}
-      ObjectValue: {fileID: 898733637}
-    - Type: 5
-      IntValue: 0
-      FloatValue: 0
-      BoolValue: 0
-      StringValue: 
-      Vector2Value: {x: 0, y: 0}
-      Vector3Value: {x: 0, y: 5, z: 0}
-      ColorValue: {r: 0, g: 0, b: 0, a: 0}
-      ObjectValue: {fileID: 0}
-    - Type: 1
-      IntValue: 0
-      FloatValue: 2
-      BoolValue: 0
-      StringValue: 
-      Vector2Value: {x: 0, y: 0}
-      Vector3Value: {x: 0, y: 0, z: 0}
-      ColorValue: {r: 0, g: 0, b: 0, a: 0}
-      ObjectValue: {fileID: 0}
-    - Type: 2
+      ParameterName: snapping
       IntValue: 0
       FloatValue: 0
       BoolValue: 0
