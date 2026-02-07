@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DG.Tweening;
 
 namespace Tweens
 {
@@ -8,5 +9,8 @@ namespace Tweens
     {
         public string MethodName;
         public List<TweenParameter> Parameters = new();
+
+        public bool OverrideEase;
+        public Ease Ease = Ease.OutQuad;
     }
 }

@@ -23,6 +23,9 @@ namespace Tweens
         private string[] MethodNames => _methodNames ??= InitializeMethodNames();
         private List<MethodInfo> Methods => _methods ??= InitializeMethodList();
 
+        private bool _overrideEase;
+        private Ease _ease = Ease.Linear;
+        
         private void OnEnable()
         {
             InitializeTweenMethods();
@@ -70,6 +73,13 @@ namespace Tweens
             }
 
             DrawCurrentMethodInfo();
+            
+            _overrideEase = EditorGUILayout.Toggle("Override Ease", _overrideEase);
+
+            using (new EditorGUI.DisabledScope(!_overrideEase))
+            {
+                _ease = (Ease)EditorGUILayout.EnumPopup("Ease", _ease);
+            }
 
             if (GUILayout.Button("Add"))
             {
@@ -103,7 +113,9 @@ namespace Tweens
                         p.SetName(o.Name);
                         return p;
                     })
-                    .ToList()
+                    .ToList(),
+                OverrideEase = _overrideEase,
+                Ease = _ease
             };
 
             Undo.RecordObject(tweenCreator, "Add Tween Entry");
@@ -129,47 +141,27 @@ namespace Tweens
 
                 if (method.Invoke(null, args) is Tween tween)
                 {
+                    if (entry.OverrideEase)
+                    {
+                        tween.SetEase(entry.Ease);
+                    }
+
                     seq.Append(tween);
                 }
             }
 
-            seq.AppendCallback(() =>
-            {
-                DOTweenEditorPreview.Stop(true);
-            });
+            seq.AppendCallback(() => DOTweenEditorPreview.Stop(true));
 
             DOTweenEditorPreview.PrepareTweenForPreview(seq);
             DOTweenEditorPreview.Start();
         }
+
 
         private MethodInfo FindShortcutMethod(string methodName, int paramCount)
         {
             return Methods.FirstOrDefault(m =>
                 m.Name == methodName &&
                 m.GetParameters().Length == paramCount);
-        }
-
-        private object[] ConvertParameters(MethodInfo method, List<object> storedParams)
-        {
-            var infos = method.GetParameters();
-            var result = new object[storedParams.Count];
-
-            for (var i = 0; i < storedParams.Count; i++)
-            {
-                var expectedType = infos[i].ParameterType;
-                var val = storedParams[i];
-
-                if (expectedType.IsInstanceOfType(val))
-                {
-                    result[i] = val;
-                }
-                else
-                {
-                    result[i] = Convert.ChangeType(val, expectedType);
-                }
-            }
-
-            return result;
         }
 
         private void InitializeNewParameterValues()
@@ -199,21 +191,16 @@ namespace Tweens
             return (parameterValue.Name, TryDrawInbuiltType(parameter.ParameterType, parameterValue.parameterValue, parameter.Name));
         }
 
-        private static Object TryDrawInbuiltType(Type t, object value, string label)
+        private static Object TryDrawInbuiltType(Type type, Object value, string label)
         {
-            switch (Type.GetTypeCode(t))
+            return Type.GetTypeCode(type) switch
             {
-                case TypeCode.Int32:
-                    return EditorGUILayout.IntField(label, (int)value);
-                case TypeCode.Single:
-                    return EditorGUILayout.FloatField(label, (float)value);
-                case TypeCode.Boolean:
-                    return EditorGUILayout.Toggle(label, (bool)value);
-                case TypeCode.String:
-                    return EditorGUILayout.TextField(label, (string)value);
-            }
-
-            return DrawObjectField(t, value, label);
+                TypeCode.Int32 => EditorGUILayout.IntField(label, (int)value),
+                TypeCode.Single => EditorGUILayout.FloatField(label, (float)value),
+                TypeCode.Boolean => EditorGUILayout.Toggle(label, (bool)value),
+                TypeCode.String => EditorGUILayout.TextField(label, (string)value),
+                _ => DrawObjectField(type, value, label)
+            };
         }
 
         private static Object DrawObjectField(Type t, Object value, string label)
