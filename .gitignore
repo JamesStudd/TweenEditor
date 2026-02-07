@@ -72,3 +72,7 @@ crashlytics-build.properties
 
 # Savegame
 /[Ss]avegame/
+
+.DS_Store
+**/.DS_Store
+.idea

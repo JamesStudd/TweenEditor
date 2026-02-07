@@ -1,4 +1,5 @@
 ﻿using System;
+using Tweens.Attributes;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -20,16 +21,16 @@ namespace Tweens
         }
 
         public ParamType Type;
-        public string ParameterName;
+        [ReadOnly] public string ParameterName;
 
-        public int IntValue;
-        public float FloatValue;
-        public bool BoolValue;
-        public string StringValue;
-        public Vector2 Vector2Value;
-        public Vector3 Vector3Value;
-        public Color ColorValue;
-        public Object ObjectValue;
+        [ShowIfParamType((int)ParamType.Int)] public int IntValue;
+        [ShowIfParamType((int)ParamType.Float)] public float FloatValue;
+        [ShowIfParamType((int)ParamType.Bool)] public bool BoolValue;
+        [ShowIfParamType((int)ParamType.String)] public string StringValue;
+        [ShowIfParamType((int)ParamType.Vector2)] public Vector2 Vector2Value;
+        [ShowIfParamType((int)ParamType.Vector3)] public Vector3 Vector3Value;
+        [ShowIfParamType((int)ParamType.Color)] public Color ColorValue;
+        [ShowIfParamType((int)ParamType.Object)] public Object ObjectValue;
 
         public object GetValue()
         {
